@@ -28,8 +28,8 @@
         const ctx = canvas.getContext('2d');
 
         // Screen dimensions
-        let WIDTH = 390;
-let HEIGHT = 844;
+        let WIDTH = 844;
+let HEIGHT = 390;
 if (WIDTH > 800) WIDTH = 800;
 if (HEIGHT > 600) HEIGHT = 600;
         canvas.width = WIDTH;
@@ -86,14 +86,14 @@ canvas.height = HEIGHT;
             touchArea.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 let touch = e.touches[0];
-                if (touch.clientX < WIDTH / 2) {
-                    if (touch.clientY < player1Y + PADDLE_HEIGHT / 2) {
+                if (touch.clientY < HEIGHT / 2) {
+                if (touch.clientX < player1Y + PADDLE_HEIGHT / 2) {
                         keys['w'] = true;
                     } else {
                         keys['s'] = true;
                     }
                 } else {
-                    if (touch.clientY < player2Y + PADDLE_HEIGHT / 2) {
+                    if (touch.clientX < player2Y + PADDLE_HEIGHT / 2) {
                         keys['ArrowUp'] = true;
                     } else {
                         keys['ArrowDown'] = true;
