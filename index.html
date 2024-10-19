@@ -20,6 +20,9 @@
 </head>
 <body>
     <script>
+        function isTouchDevice() {
+            return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+        }
         const canvas = document.createElement('canvas');
         document.body.appendChild(canvas);
         const ctx = canvas.getContext('2d');
@@ -66,8 +69,45 @@
 
         // Key states
         let keys = {};
-        window.addEventListener('keydown', (e) => keys[e.key] = true);
-        window.addEventListener('keyup', (e) => keys[e.key] = false);
+        if (isTouchDevice()) {
+            let touchArea = document.createElement('div');
+            touchArea.style.position = 'absolute';
+            touchArea.style.top = '0';
+            touchArea.style.left = '0';
+            touchArea.style.width = '100%';
+            touchArea.style.height = '100%';
+            touchArea.style.zIndex = '10';
+            touchArea.style.opacity = '0';
+            document.body.appendChild(touchArea);
+
+            touchArea.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                let touch = e.touches[0];
+                if (touch.clientX < WIDTH / 2) {
+                    if (touch.clientY < player1Y + PADDLE_HEIGHT / 2) {
+                        keys['w'] = true;
+                    } else {
+                        keys['s'] = true;
+                    }
+                } else {
+                    if (touch.clientY < player2Y + PADDLE_HEIGHT / 2) {
+                        keys['ArrowUp'] = true;
+                    } else {
+                        keys['ArrowDown'] = true;
+                    }
+                }
+            });
+
+            touchArea.addEventListener('touchend', (e) => {
+                keys['w'] = false;
+                keys['s'] = false;
+                keys['ArrowUp'] = false;
+                keys['ArrowDown'] = false;
+            });
+        } else {
+            window.addEventListener('keydown', (e) => keys[e.key] = true);
+            window.addEventListener('keyup', (e) => keys[e.key] = false);
+        }
 
         let colorIndex = 0;
 
@@ -154,7 +194,6 @@
             ctx.fillRect(ballX, ballY, BALL_SIZE, BALL_SIZE);
 
             // Draw scores
-            // Something
             ctx.fillStyle = 'white';
             ctx.font = '36px Arial';
             ctx.fillText(player1Score, WIDTH / 4, 50);
