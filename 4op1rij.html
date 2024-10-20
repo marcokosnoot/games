@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>4 op een Rij</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    #game-board {
+      display: grid;
+      grid-template-columns: repeat(7, 100px);
+      gap: 5px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      background-color: lightblue;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .red {
+      background-color: red;
+    }
+
+    .yellow {
+      background-color: yellow;
+    }
+
+    #status {
+      margin-top: 20px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>4 op een Rij</h1>
+  <div id="game-board"></div>
+  <h2 id="status">Rode speler is aan zet</h2>
+  <button onclick="resetGame()">Herstart</button>
+
+  <script>
+    const columns = 7;
+    const rows = 6;
+    let board = [];
+    let currentPlayer = 'red';
+    let gameActive = true;
+
+    const boardElement = document.getElementById('game-board');
+    const statusElement = document.getElementById('status');
+
+    // Init speelbord
+    function initBoard() {
+      board = Array(rows).fill(null).map(() => Array(columns).fill(null));
+      boardElement.innerHTML = '';
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < columns; col++) {
+          const cell = document.createElement('div');
+          cell.classList.add('cell');
+          cell.dataset.col = col;
+          cell.dataset.row = row;
+          cell.addEventListener('click', handleCellClick);
+          boardElement.appendChild(cell);
+        }
+      }
+    }
+
+    function handleCellClick(e) {
+      if (!gameActive) return;
+
+      const col = e.target.dataset.col;
+      for (let row = rows - 1; row >= 0; row--) {
+        if (!board[row][col]) {
+          board[row][col] = currentPlayer;
+          const cell = document.querySelector(`[data-row='${row}'][data-col='${col}']`);
+          cell.classList.add(currentPlayer);
+          checkWinner(row, col);
+          currentPlayer = currentPlayer === 'red' ? 'yellow' : 'red';
+          statusElement.textContent = `${currentPlayer === 'red' ? 'Rode' : 'Gele'} speler is aan zet`;
+          break;
+        }
+      }
+    }
+
+    function checkWinner(row, col) {
+      const directions = [
+        { r: 0, c: 1 }, // horizontaal
+        { r: 1, c: 0 }, // verticaal
+        { r: 1, c: 1 }, // diagonaal naar rechts
+        { r: 1, c: -1 } // diagonaal naar links
+      ];
+
+      for (let { r, c } of directions) {
+        let count = 1;
+        count += countInDirection(row, col, r, c);
+        count += countInDirection(row, col, -r, -c);
+        if (count >= 4) {
+          gameActive = false;
+          statusElement.textContent = `${currentPlayer === 'red' ? 'Rode' : 'Gele'} speler wint!`;
+        }
+      }
+    }
+
+    function countInDirection(row, col, rowInc, colInc) {
+      let count = 0;
+      let r = row + rowInc;
+      let c = col + colInc;
+      while (r >= 0 && r < rows && c >= 0 && c < columns && board[r][c] === currentPlayer) {
+        count++;
+        r += rowInc;
+        c += colInc;
+      }
+      return count;
+    }
+
+    function resetGame() {
+      gameActive = true;
+      currentPlayer = 'red';
+      statusElement.textContent = 'Rode speler is aan zet';
+      initBoard();
+    }
+
+    // Start het spel
+    initBoard();
+  </script>
+</body>
+</html>
